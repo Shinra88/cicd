@@ -1,13 +1,14 @@
 # Nom du workflow
 name: Mon Workflow
-# Cette section définit les événements déclancheurs du workflow
+
+# Cette section définit les événements déclencheurs du workflow
 on: 
   push:
     branches:
       - main
-# Défini les less jobs à exécuter dans le workflow
+
+# Défini les jobs à exécuter dans le workflow
 jobs:
-  # Nom du job
   create-pull-request:
     runs-on: ubuntu-latest
     steps:
@@ -15,26 +16,21 @@ jobs:
         uses: actions/checkout@v4
       - name: Installation de la CLI Github
         run: |
-          curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | gpg --dearmor -o /usr/share/keyrings/githubcli-archive-keyring.gpg
-            echo "deb [signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg arch=all] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list
-            sudo apt update
-            sudo apt install gh
+          curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo gpg --dearmor -o /usr/share/keyrings/githubcli-archive-keyring.gpg
+          echo "deb [signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg arch=all] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list
+          sudo apt update
+          sudo apt install gh
       - name: Création de la pull Request
         run: |
-          gh auth login --with-token < ${{ secrets.GITHUB_TOKEN }}
-          gh pr create --base main --head ${{ github.ref }} --title "Nouvelle fonctionalité" --body "Cette pull request ajoute une nouvelle fonctionnalité."
-          
+          gh auth login --with-token < ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          gh pr create --base main --head ${{ github.ref }} --title "Nouvelle fonctionnalité" --body "Cette pull request ajoute une nouvelle fonctionnalité."
+
   build:
-    # Cette ligne définit l'environnement d'exécution du job sera exécuter
     runs-on: ubuntu-latest
-    # Cette section définit les étapes à exécuter dans le job
     steps:
-      # Nom de l'étape
       - name: Checkout du code
-      #L'action a utiliser. Ici "actions/checkout@v4" est l'action qui clone le code source du projet
         uses: actions/checkout@v4
       - name: Installations des dépendances
-      # Exécute la commande npm install
         run: npm install
       - name: Exécution des tests
         run: npm test
@@ -42,7 +38,10 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: test-results
-          path: test-result
+          path: ./reports/awesome-reports/
+        env:
+          ACTIONS_STEP_DEBUG: true
+          GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
   deploy:
     needs: build
@@ -53,5 +52,5 @@ jobs:
         with:
           name: test-results
       - name: Déploiement sur le serveur de production
-        run: | # Script de déploiements
+        run: |
           echo "Déploiement de l'application sur le serveur"
