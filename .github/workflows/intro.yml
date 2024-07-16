@@ -40,6 +40,8 @@ jobs:
           git pull origin feature/new-feature --rebase || true
           git push origin feature/new-feature || true
       - name: Vérifier si une pull request existe déjà
+        env:
+          GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
         id: check_pr
         run: |
           gh pr list --head feature/new-feature --json number --jq '.[0].number' > pr_number.txt
