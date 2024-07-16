@@ -22,7 +22,7 @@ jobs:
           sudo apt install gh
       - name: Authentification avec GitHub CLI
         env:
-          GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
         run: |
           gh auth setup-git
           gh auth status
@@ -37,8 +37,11 @@ jobs:
           echo "Nouvelle fonctionnalité" > nouvelle_fonctionnalite.txt
           git add nouvelle_fonctionnalite.txt
           git commit -m "Ajout d'une nouvelle fonctionnalité"
-          git push -f origin feature/new-feature
+          git pull origin feature/new-feature --rebase || true
+          git push origin feature/new-feature || true
       - name: Création de la pull Request
+        env:
+          GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
         run: |
           gh pr create --base main --head feature/new-feature --title "Nouvelle fonctionnalité" --body "Cette pull request ajoute une nouvelle fonctionnalité."
 
