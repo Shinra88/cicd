@@ -53,5 +53,5 @@ jobs:
         with:
           name: test-results
       - name: Déploiement sur le serveur de production
-        run: | # Script de déploiement
+        run: | # Script de déploiements
           echo "Déploiement de l'application sur le serveur"
