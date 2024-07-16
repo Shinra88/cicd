@@ -21,8 +21,10 @@ jobs:
           sudo apt update
           sudo apt install gh
       - name: Création de la pull Request
+        env:
+          GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
         run: |
-          gh auth login --with-token < ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          echo $GITHUB_TOKEN | gh auth login --with-token
           gh pr create --base main --head ${{ github.ref }} --title "Nouvelle fonctionnalité" --body "Cette pull request ajoute une nouvelle fonctionnalité."
 
   build:
