@@ -37,7 +37,7 @@ jobs:
           echo "Nouvelle fonctionnalité" > nouvelle_fonctionnalite.txt
           git add nouvelle_fonctionnalite.txt
           git commit -m "Ajout d'une nouvelle fonctionnalité"
-          git push origin feature/new-feature
+          git push -f origin feature/new-feature
       - name: Création de la pull Request
         run: |
           gh pr create --base main --head feature/new-feature --title "Nouvelle fonctionnalité" --body "Cette pull request ajoute une nouvelle fonctionnalité."
