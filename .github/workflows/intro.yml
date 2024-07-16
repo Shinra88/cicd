@@ -20,12 +20,22 @@ jobs:
           echo "deb [signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg arch=all] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list
           sudo apt update
           sudo apt install gh
-      - name: Création de la pull Request
+      - name: Authentification avec GitHub CLI
         env:
           GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
         run: |
-          echo $GITHUB_TOKEN | gh auth login --with-token
-          gh pr create --base main --head ${{ github.ref }} --title "Nouvelle fonctionnalité" --body "Cette pull request ajoute une nouvelle fonctionnalité."
+          echo $GITHUB_TOKEN | gh auth login --with-token -p https
+      - name: Créer une branche temporaire
+        run: |
+          git checkout -b feature/new-feature
+          # Ajoutez des changements ici, par exemple, un nouveau fichier
+          echo "Nouvelle fonctionnalité" > nouvelle_fonctionnalite.txt
+          git add nouvelle_fonctionnalite.txt
+          git commit -m "Ajout d'une nouvelle fonctionnalité"
+          git push origin feature/new-feature
+      - name: Création de la pull Request
+        run: |
+          gh pr create --base main --head feature/new-feature --title "Nouvelle fonctionnalité" --body "Cette pull request ajoute une nouvelle fonctionnalité."
 
   build:
     runs-on: ubuntu-latest
