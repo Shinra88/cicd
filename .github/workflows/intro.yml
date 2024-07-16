@@ -56,7 +56,6 @@ jobs:
           name: test-results
           path: ./reports/awesome-reports/
         env:
-          ACTIONS_STEP_DEBUG: true
           GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
   deploy:
