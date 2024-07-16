@@ -24,7 +24,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
         run: |
-          echo $GITHUB_TOKEN | gh auth login --with-token -p https
+          gh auth setup-git
+          gh auth status
       - name: Configurer l'identité Git
         run: |
           git config --global user.email "your-email@example.com"
