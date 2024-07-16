@@ -32,18 +32,35 @@ jobs:
           git config --global user.name "Your Name"
       - name: Créer une branche temporaire
         run: |
-          git checkout -b feature/new-feature
+          git checkout -b feature/new-feature || git checkout feature/new-feature
           # Ajoutez des changements ici, par exemple, un nouveau fichier
           echo "Nouvelle fonctionnalité" > nouvelle_fonctionnalite.txt
           git add nouvelle_fonctionnalite.txt
           git commit -m "Ajout d'une nouvelle fonctionnalité"
           git pull origin feature/new-feature --rebase || true
           git push origin feature/new-feature || true
-      - name: Création de la pull Request
+      - name: Vérifier si une pull request existe déjà
+        id: check_pr
+        run: |
+          gh pr list --head feature/new-feature --json number --jq '.[0].number' > pr_number.txt
+          if [ -s pr_number.txt ]; then
+            echo "PR_EXISTS=true" >> $GITHUB_ENV
+            echo "PR_NUMBER=$(cat pr_number.txt)" >> $GITHUB_ENV
+          else
+            echo "PR_EXISTS=false" >> $GITHUB_ENV
+          fi
+      - name: Mettre à jour ou créer une pull request
+        if: env.PR_EXISTS == 'false'
         env:
           GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
         run: |
           gh pr create --base main --head feature/new-feature --title "Nouvelle fonctionnalité" --body "Cette pull request ajoute une nouvelle fonctionnalité."
+      - name: Ajouter un commentaire à la pull request existante
+        if: env.PR_EXISTS == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+        run: |
+          gh pr comment ${{ env.PR_NUMBER }} --body "Mise à jour automatique de la branche avec de nouvelles modifications."
 
   build:
     runs-on: ubuntu-latest
